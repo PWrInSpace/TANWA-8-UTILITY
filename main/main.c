@@ -6,7 +6,6 @@
 #include "driver/gpio.h"
 #include "board_config.h"
 #include "setup_task.h"
-#include "LTC4421_controller.h"
 #define TAG "APP"
 
 extern board_config_t config;
