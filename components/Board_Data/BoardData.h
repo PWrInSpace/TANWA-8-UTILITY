@@ -4,15 +4,14 @@
 #include "stdbool.h"
 
 typedef struct {
-    bool ch1_status;
-    bool fault_1_status;
-    bool fault_2_status;
-    bool ch2_status;
-    float Voltage24V_in;
-    float Current24V_in;
-    float Voltage12V_in;
-    float Current12V_in;
-    float CurrentBoard;
+    bool SWITCH_1_STATUS;
+    bool SWITCH_2_STATUS;
+    bool SWITCH_3_STATUS;
+    bool SWITCH_4_STATUS;
+    bool SWITCH_5_STATUS;
+    bool SWITCH_6_STATUS;
+    bool SWITCH_7_STATUS;
+    bool SWITCH_8_STATUS;
 } BoardData_t;
 
 extern BoardData_t BoardData;
