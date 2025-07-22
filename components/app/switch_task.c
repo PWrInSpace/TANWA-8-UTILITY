@@ -5,7 +5,9 @@
 #include <driver/gpio.h>
 #include "esp_log.h"
 #include "switch_task.h"
-
+#include "BoardData.h"
+#include "can_api.h"
+#include "freertos/semphr.h"
 // Type for switch callbacks
 typedef void (*switch_callback_t)(void);
 
@@ -22,23 +24,200 @@ typedef struct {
     switch_callback_t off_callback;
 } switch_config_t;
 
+esp_err_t parse_bool_to_uint8_t(const bool *states, uint8_t num_states, uint8_t *result)
+{
+    if (states == NULL || result == NULL || num_states > 8) {
+        ESP_LOGE("SWITCH TASK", "Invalid input or too many states for uint8_t");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    *result = 0; // Initialize result
+    for (int i = 0; i < num_states; i++) {
+        if (states[i]) {
+            *result |= (1 << i); // Set i-th bit if state is true
+        }
+    }
+    return ESP_OK;
+}
+
 // Define switch commands
-static void cmd1(void) { printf("Switch 1 pressed: Command 1 executed\n"); }
-static void cmd1_off(void) { printf("Switch 1 released: Command 1 off executed\n"); }
-static void cmd2(void) { printf("Switch 2 pressed: Command 2 executed\n"); }
-static void cmd2_off(void) { printf("Switch 2 released: Command 2 off executed\n"); }
-static void cmd3(void) { printf("Switch 3 pressed: Command 3 executed\n"); }
-static void cmd3_off(void) { printf("Switch 3 released: Command 3 off executed\n"); }
-static void cmd4(void) { printf("Switch 4 pressed: Command 4 executed\n"); }
-static void cmd4_off(void) { printf("Switch 4 released: Command 4 off executed\n"); }
-static void cmd5(void) { printf("Switch 5 pressed: Command 5 executed\n"); }
-static void cmd5_off(void) { printf("Switch 5 released: Command 5 off executed\n"); }
-static void cmd6(void) { printf("Switch 6 pressed: Command 6 executed\n"); }
-static void cmd6_off(void) { printf("Switch 6 released: Command 6 off executed\n"); }
-static void cmd7(void) { printf("Switch 7 pressed: Command 7 executed\n"); }
-static void cmd7_off(void) { printf("Switch 7 released: Command 7 off executed\n"); }
-static void cmd8(void) { printf("Switch 8 pressed: Command 8 executed\n"); }
-static void cmd8_off(void) { printf("Switch 8 released: Command 8 off executed\n"); }
+static void cmd1(void) {
+    printf("Switch 1 pressed: N20 FILL OPEN\n");
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[0] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd1_off(void) { 
+    printf("Switch 1 released: N20 FILL CLOSE\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[0] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd2(void) { 
+    printf("Switch 2 pressed: N20 DEPR OPENED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[1] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd2_off(void) { 
+    printf("Switch 2 released: N20 DEPR CLOSED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[1] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd3(void) { 
+    printf("Switch 3 pressed: N2 FILL OPENED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[2] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd3_off(void) { 
+    printf("Switch 3 released: N2 FILL CLOSED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[2] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd4(void) { 
+    printf("Switch 4 pressed: N2 DEPR OPENED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[3] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd4_off(void) { 
+    printf("Switch 4 released: N2 DEPR CLOSED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[3] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd5(void) { 
+    printf("Switch 5 pressed: DROID N20 OPENED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[4] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd5_off(void) { 
+    printf("Switch 5 released: DROID N20 CLOSED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[4] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd6(void) { 
+    printf("Switch 6 pressed: DROID N2 OPENED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[5] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd6_off(void) { 
+    printf("Switch 6 released: DROID N2 CLOSED\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[5] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd7(void) 
+{
+    printf("Switch 7 pressed: HEATING TANKS ON\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[6] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd7_off(void) { 
+    printf("Switch 7 released: HEATING TANKS OFF\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[6] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd8(void) { 
+    printf("Switch 8 pressed: HEATING VALVES ON\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[7] = true;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
+static void cmd8_off(void) { 
+    printf("Switch 8 released: HEATING VALVES OFF\n"); 
+    xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
+    BoardData.SWITCH_STATES[7] = false;
+    xSemaphoreGiveFromISR(BoardDataSemaphore,NULL);
+    uint8_t msg = 0;
+    parse_bool_to_uint8_t(BoardData.SWITCH_STATES,SWITCHES_QUANTITY,&msg);
+    uint8_t message[4] = {0};
+    message[3] = msg;
+    can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+}
 
 // Switch configuration array
 static const switch_config_t switch_configs[] = {

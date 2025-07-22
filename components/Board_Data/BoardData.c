@@ -1,8 +1,22 @@
 #include "BoardData.h"
+#include <esp_err.h>
+
+BoardData_t BoardData;
+SemaphoreHandle_t BoardDataSemaphore;
+
+esp_err_t board_data_init(void) {
+    // Initialize semaphore
+    BoardDataSemaphore = xSemaphoreCreateMutex();
+    if (BoardDataSemaphore == NULL) {
+        return ESP_ERR_NO_MEM;
+    }
+    // Initialize board data (valves are initialized in valves_init())
+    return ESP_OK;
+}
 
 BoardData_t BoardData = {
     .temperature = 0,
     .voltage_mV = 0,
     .curr_mA = 0,
-    .SWITCH_STATES = {0},
+    .SWITCH_STATES = {false},
 };
