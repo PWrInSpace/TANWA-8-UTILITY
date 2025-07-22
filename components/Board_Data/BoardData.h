@@ -2,16 +2,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "stdbool.h"
+#include "switches_ext.h"
 
 typedef struct {
-    bool SWITCH_1_STATUS;
-    bool SWITCH_2_STATUS;
-    bool SWITCH_3_STATUS;
-    bool SWITCH_4_STATUS;
-    bool SWITCH_5_STATUS;
-    bool SWITCH_6_STATUS;
-    bool SWITCH_7_STATUS;
-    bool SWITCH_8_STATUS;
+    float temperature;
+    uint16_t voltage_mV;
+    uint16_t curr_mA;
+    bool SWITCH_STATES[SWITCHES_QUANTITY];
 } BoardData_t;
 
 extern BoardData_t BoardData;

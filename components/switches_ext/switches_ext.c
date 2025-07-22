@@ -9,7 +9,7 @@ gpio_config_t io_conf = {
         .intr_type = GPIO_INTR_DISABLE
     };
   gpio_num_t input_pins[] = {
-        CONFIG_GPIO_SWITCH_1,
+CONFIG_GPIO_SWITCH_1,
 CONFIG_GPIO_SWITCH_2,
 CONFIG_GPIO_SWITCH_3,
 CONFIG_GPIO_SWITCH_4,
