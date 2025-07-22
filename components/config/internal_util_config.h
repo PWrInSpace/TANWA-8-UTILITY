@@ -1,11 +1,10 @@
 #pragma once
 
-#define TAG "INTERNAL_UTILL_CONFIG"
-
 #include <stdbool.h>
 #include <esp_adc/adc_oneshot.h>
 #include <esp_adc/adc_cali.h>
 #include "internal_util_config.h"
+#include <driver/ledc.h>
 
 #include "driver/gpio.h"
 #include "rom/gpio.h"

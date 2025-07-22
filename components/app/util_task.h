@@ -10,21 +10,20 @@
 #include "board_config.h"
 #include "setup_task.h"
 #include <driver/ledc.h>
-#define TAG "UTILL_TASK"
+#include "internal_util_config.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-esp_err_t util_task_init()
-{
-    if(xTaskCreatePinnedToCore(util_task, "util_task", 2048, NULL, 5, NULL, 1) == pdPASS) {
-        ESP_LOGI(TAG, "UTIL task created successfully");
-    } else {
-        ESP_LOGE(TAG, "Failed to create UTIL task");
-        return ESP_FAIL;
-    }
+#include "esp_log.h"
+#include "esp_err.h"
+#include "driver/gpio.h"
+#include "board_config.h"
+#include "setup_task.h"
+#include <driver/ledc.h>
 
-    return ESP_OK;
-}
+#define TAGS "UTILL_TASK"
 
-void app_task(void *arg) {
+void util_task(void *arg) {
 init_internal_util();
     while(1) {
         bool kontrakton_state = gpio_get_level(CONFIG_GPIO_KONTRAKTON);
@@ -43,8 +42,21 @@ init_internal_util();
             set_led_strip_brightness(0);
         }
 
-        ESP_LOGI(TAG, "ADC Voltage: %d, and duty = %d", voltage, duty);
+        ESP_LOGI(TAGS, "ADC Voltage: %d, and duty = %d", voltage, duty);
         vTaskDelay(10 / portTICK_PERIOD_MS);
         
     }
 }
+
+esp_err_t util_task_init()
+{
+    if(xTaskCreatePinnedToCore(util_task, "util_task", 2048, NULL, 5, NULL, 1) == pdPASS) {
+        ESP_LOGI(TAGS, "UTIL task created successfully");
+    } else {
+        ESP_LOGE(TAGS, "Failed to create UTIL task");
+        return ESP_FAIL;
+    }
+
+    return ESP_OK;
+}
+

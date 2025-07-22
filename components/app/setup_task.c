@@ -9,7 +9,7 @@
 #include "app_task.h"
 #include "console_config.h"
 #include "console.h"
-
+#include "util_task.h"
 #include "switch_task.h"
 
 #define SETUP_TASK_STACK_SIZE CONFIG_SETUP_TASK_STACK_SIZE
@@ -37,6 +37,12 @@ void setup_task(void *arg) {
     }
     if(switch_interrupts_init() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize app task");
+        vTaskDelete(NULL);
+    }
+
+    if(util_task_init() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize util task");
         vTaskDelete(NULL);
     }
   //}

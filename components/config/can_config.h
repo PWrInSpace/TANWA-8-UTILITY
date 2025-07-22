@@ -10,3 +10,4 @@
 esp_err_t can_config_init(void);
 
 #endif /* PWRINSPACE_CAN_CONFIG_H */
+
