@@ -54,6 +54,8 @@ static int read_pwr_data(int argc, char **arg)
     return 0;
 }
 
+
+
 static esp_console_cmd_t cmd[] = {
     // system commands
     {"reset-dev", "restart device", NULL, reset_device, NULL, NULL, NULL},

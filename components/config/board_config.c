@@ -24,6 +24,8 @@
 #include "can_config.h"
 #include "console_config.h"
 
+#include "internal_util_config.h"
+
 #define TAG "BOARD_CONFIG"
 
 void _led_delay(uint32_t _ms) {
@@ -73,6 +75,13 @@ esp_err_t board_config_init(void) {
         return err;
     }
     return ESP_OK;
+
+    err = init_internal_util();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Util initialization failed");
+        return err;
+    }
 
     //*********** ADD HARDWARE CONFIGURATION HERE ***********//
 
