@@ -15,7 +15,7 @@ esp_err_t board_data_init(void) {
 }
 
 BoardData_t BoardData = {
-    .temperature = 0,
+    .status_temp = 0,
     .voltage_mV = 0,
     .curr_mA = 0,
     .SWITCH_STATES = {false},

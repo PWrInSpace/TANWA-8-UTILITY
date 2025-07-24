@@ -130,6 +130,7 @@ static void switch_task(void *arg)
     while (1) {
         if (xQueueReceive(switch_queue, &event, portMAX_DELAY)) {
             parse_bool_to_uint8_t(BoardData.SWITCH_STATES,8,&sw_states);
+            message[0] = (uint8_t)BoardData.status_temp;
             message[2] = sw_states;
             can_send_message(CAN_SEND_STATUS,message,sizeof(message));
         }

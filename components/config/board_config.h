@@ -15,10 +15,11 @@
 
 #include "led_driver.h"
 #include "esp_err.h"
-
+#include "tmp1075.h"
 typedef struct {
     char board_name[32];
     led_struct_t status_led;
+    tmp1075_struct_t tmp1075;
 } board_config_t;
 
 extern board_config_t config;

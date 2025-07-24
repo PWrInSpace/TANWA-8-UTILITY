@@ -2,9 +2,10 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include "tmp1075.h"
 #include "esp_log.h"
-
+#include "board_config.h"
+#include "BoardData.h"
 #include "can_api.h"
 
 
@@ -42,7 +43,8 @@ void app_task(void *arg) {
     // YOUR IMAGINATION IS THE ONLY LIMITATION
     while(1) {
         ESP_LOGI("APP_TASK", "App task working");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        tmp1075_get_temp_celsius(&config.tmp1075, &BoardData.status_temp);
+        vTaskDelay(250 / portTICK_PERIOD_MS);
         
     }
 }

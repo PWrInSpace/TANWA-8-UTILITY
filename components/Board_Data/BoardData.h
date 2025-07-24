@@ -5,7 +5,7 @@
 #include "switches_ext.h"
 
 typedef struct {
-    float temperature;
+    float status_temp;
     uint16_t voltage_mV;
     uint16_t curr_mA;
     bool SWITCH_STATES[SWITCHES_QUANTITY];
@@ -13,3 +13,5 @@ typedef struct {
 
 extern BoardData_t BoardData;
 extern SemaphoreHandle_t BoardDataSemaphore;
+
+esp_err_t board_data_init(void);

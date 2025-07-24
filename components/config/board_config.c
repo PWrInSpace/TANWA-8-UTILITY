@@ -25,7 +25,8 @@
 #include "console_config.h"
 
 #include "internal_util_config.h"
-
+#include "BoardData.h"
+#include "mcu_i2c_config.h"
 #define TAG "BOARD_CONFIG"
 
 void _led_delay(uint32_t _ms) {
@@ -41,6 +42,12 @@ board_config_t config = {
         .drive = LED_DRIVE_POSITIVE,
         .state = LED_STATE_OFF, 
     },
+    .tmp1075 = {
+            ._i2c_write = _mcu_i2c_write,
+            ._i2c_read = _mcu_i2c_read,
+            .i2c_address = 0x48,
+            .config_register = 0,
+},
 };
 
 esp_err_t board_config_init(void) {
@@ -54,6 +61,18 @@ esp_err_t board_config_init(void) {
         return err;
     }
 
+    err = mcu_i2c_init();
+
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "I2C initialization failed");
+        return err;
+    }
+    
+    err = board_data_init();
+    if (err != ESP_OK) {
+    ESP_LOGE(TAG, "BOARD DATA initialization failed");
+        return err;
+    }
     err = mcu_twai_init();
 
     if (err != ESP_OK) {
