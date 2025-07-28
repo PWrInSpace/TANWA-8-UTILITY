@@ -9,11 +9,14 @@
 #include "can_api.h"
 #include "freertos/semphr.h"
 
+#define DEBOUNCE_TIME_MS 50 // Debounce time in milliseconds
+
 static uint8_t sw_states = 0;
 static uint8_t message[3] = {0};
 typedef struct {
     uint32_t gpio_num;
     bool pressed; // true for pressed, false for released
+    TickType_t last_event_time; // Last time this switch was processed
 } switch_event_t;
 
 // Structure to hold switch configuration
@@ -39,10 +42,10 @@ esp_err_t parse_bool_to_uint8_t(const bool *states, uint8_t num_states, uint8_t 
         return ESP_ERR_INVALID_ARG;
     }
 
-    *result = 0; // Initialize result
+    *result = 0;
     for (int i = 0; i < num_states; i++) {
         if (states[i]) {
-            *result |= (1 << i); // Set i-th bit if state is true
+            *result |= (1 << i);
         }
     }
     return ESP_OK;
@@ -50,6 +53,7 @@ esp_err_t parse_bool_to_uint8_t(const bool *states, uint8_t num_states, uint8_t 
 
 // Queue to send switch events from ISR to task
 static QueueHandle_t switch_queue;
+static TickType_t last_switch_time[SWITCHES_QUANTITY] = {0}; // Track last event time for each switch
 
 // ISR handler for switch interrupts
 static void IRAM_ATTR switch_isr(void *arg)
@@ -57,62 +61,16 @@ static void IRAM_ATTR switch_isr(void *arg)
     uint32_t gpio_num = (uint32_t)arg;
     switch_event_t event = {
         .gpio_num = gpio_num,
-        .pressed = (gpio_get_level(gpio_num) == 0) // Active-low: 0 means pressed
+        .pressed = (gpio_get_level(gpio_num) == 0), // Active-low: 0 means pressed
+        .last_event_time = xTaskGetTickCountFromISR()
     };
 
-    // Use a switch statement to update the appropriate switch state
-    switch (gpio_num)
-    {
-        case CONFIG_GPIO_SWITCH_1:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[0] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
+    // Update BoardData directly without semaphore in ISR
+    for (int i = 0; i < SWITCHES_QUANTITY; i++) {
+        if (switches[i].gpio_num == gpio_num) {
+            BoardData.SWITCH_STATES[i] = event.pressed;
             break;
-
-        case CONFIG_GPIO_SWITCH_2:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[1] = event.pressed; // Fixed: Use event.pressed instead of true
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_3:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[2] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_4:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[3] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_5:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[4] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_6:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[5] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_7:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[6] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        case CONFIG_GPIO_SWITCH_8:
-            xSemaphoreTakeFromISR(BoardDataSemaphore, NULL);
-            BoardData.SWITCH_STATES[7] = event.pressed;
-            xSemaphoreGiveFromISR(BoardDataSemaphore, NULL);
-            break;
-
-        default:
-        break;
+        }
     }
 
     BaseType_t higher_priority_task_woken = pdFALSE;
@@ -128,11 +86,34 @@ static void switch_task(void *arg)
 {
     switch_event_t event;
     while (1) {
-        if (xQueueReceive(switch_queue, &event, portMAX_DELAY)) {
-            parse_bool_to_uint8_t(BoardData.SWITCH_STATES,8,&sw_states);
-            message[0] = (uint8_t)BoardData.status_temp;
-            message[2] = sw_states;
-            can_send_message(CAN_SEND_STATUS,message,sizeof(message));
+        if (xQueueReceive(switch_queue, &event, portMAX_DELAY)) { // Use portMAX_DELAY for reliability
+            // Debounce: Ignore events within DEBOUNCE_TIME_MS
+            int switch_idx = -1;
+            for (int i = 0; i < SWITCHES_QUANTITY; i++) {
+                if (switches[i].gpio_num == event.gpio_num) {
+                    switch_idx = i;
+                    break;
+                }
+            }
+
+            if (switch_idx >= 0) {
+                TickType_t current_time = xTaskGetTickCount();
+                TickType_t time_diff = (current_time - last_switch_time[switch_idx]) * portTICK_PERIOD_MS;
+
+                if (time_diff >= DEBOUNCE_TIME_MS) {
+                    last_switch_time[switch_idx] = current_time;
+
+                    // Log only the specific switch event
+                    ESP_LOGI("SWITCH TASK", "Switch %d %s", event.gpio_num, event.pressed ? "pressed" : "released");
+
+                    // Update CAN message
+                    parse_bool_to_uint8_t(BoardData.SWITCH_STATES, 8, &sw_states);
+                    message[0] = 200;
+                    message[2] = sw_states;
+                    printf("message = %d\n", message[2]);
+                    can_send_message(CAN_SEND_STATUS, message, sizeof(message));
+                }
+            }
         }
     }
 }
@@ -143,7 +124,7 @@ esp_err_t switch_interrupts_init(void)
     switch_queue = xQueueCreate(10, sizeof(switch_event_t));
     if (!switch_queue) {
         ESP_LOGE("SWITCH", "Failed to create switch queue");
-        return ESP_LOG_ERROR;
+        return ESP_FAIL; // Use ESP_FAIL for consistency
     }
 
     for (uint8_t i = 0; i < SWITCHES_QUANTITY; i++) {
@@ -156,10 +137,15 @@ esp_err_t switch_interrupts_init(void)
         };
         gpio_config(&io_conf);
 
-        gpio_install_isr_service(0); // only needs to be called once
+        // Install ISR service only once
+        static bool isr_service_installed = false;
+        if (!isr_service_installed) {
+            gpio_install_isr_service(0);
+            isr_service_installed = true;
+        }
         gpio_isr_handler_add(switches[i].gpio_num, switch_isr, (void *)switches[i].gpio_num);
     }
 
-    xTaskCreate(switch_task, "switch_task", 2048, NULL, 10, NULL);
+    xTaskCreate(switch_task, "switch_task", 4096, NULL, 10, NULL);
     return ESP_OK;
-}
+    }

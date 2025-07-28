@@ -27,7 +27,7 @@ static struct {
 
 esp_err_t can_start(void) {
     esp_err_t err;
-
+    gpio_set_level(8,0);
     // Start the TWAI driver
     err = twai_start();
     if (err != ESP_OK) {

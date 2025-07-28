@@ -10,13 +10,13 @@
 #define TAG "MCU_TWAI"
 
 mcu_twai_config_t mcu_twai_config = {
-    .tx_gpio_num = CONFIG_CAN_RX_GPIO,
-    .rx_gpio_num = CONFIG_CAN_TX_GPIO,
+    .tx_gpio_num = 20,
+    .rx_gpio_num = 19,
     .mode = TWAI_MODE_NORMAL,
     .g_config = {
         .mode = TWAI_MODE_NORMAL,
-        .tx_io = CONFIG_CAN_TX_GPIO,
-        .rx_io = CONFIG_CAN_RX_GPIO,
+        .tx_io = 20,
+        .rx_io = 19,
         .clkout_io = TWAI_IO_UNUSED,
         .bus_off_io = TWAI_IO_UNUSED,
         .tx_queue_len = CONFIG_CAN_TX_QUEUE_LENGTH,
@@ -28,7 +28,7 @@ mcu_twai_config_t mcu_twai_config = {
     .t_config = TWAI_TIMING_CONFIG_500KBITS(),
     .f_config = {
         // set the proper filter configuration
-        .acceptance_code = 0x0C00 << 3,
+        .acceptance_code = 0x0E00 << 3,
         .acceptance_mask = ~(0x0F00 << 3),
         .single_filter = true,
     },

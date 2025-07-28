@@ -24,6 +24,7 @@ typedef enum {
     LED_GPIO = CONFIG_GPIO_LED,
     BUZZER_GPIO = CONFIG_GPIO_BUZZER,
     KONTRAKTON_GPIO = CONFIG_GPIO_KONTRAKTON,
+    CAN_STB = 8,
 } mcu_gpio_cfg_t;
 
 // ADD GPIO PINS INDICES HERE
@@ -31,6 +32,7 @@ typedef enum {
     LED_GPIO_INDEX = 0,
     BUZZER_GPIO_INDEX,
     KONTRAKTON_GPIO_INDEX,
+    CAN_STB_IDX,
     MAX_GPIO_INDEX
 } mcu_gpio_index_cfg_t;
 

@@ -42,8 +42,8 @@ void app_task(void *arg) {
 
     // YOUR IMAGINATION IS THE ONLY LIMITATION
     while(1) {
-        ESP_LOGI("APP_TASK", "App task working");
         tmp1075_get_temp_celsius(&config.tmp1075, &BoardData.status_temp);
+        led_toggle(&(config.status_led));
         vTaskDelay(250 / portTICK_PERIOD_MS);
         
     }

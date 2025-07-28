@@ -35,16 +35,16 @@ void setup_task(void *arg) {
         ESP_LOGE(TAG, "Failed to initialize app task");
         vTaskDelete(NULL);
     }
-    // if(switch_interrupts_init() != ESP_OK) {
-    //     ESP_LOGE(TAG, "Failed to initialize app task");
-    //     vTaskDelete(NULL);
-    // }
+     if(switch_interrupts_init() != ESP_OK) {
+         ESP_LOGE(TAG, "Failed to initialize switch task");
+         vTaskDelete(NULL);
+     }
 
-    if(util_task_init() != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize util task");
-        vTaskDelete(NULL);
-    }
+  //  if(util_task_init() != ESP_OK)
+  //  {
+  //      ESP_LOGE(TAG, "Failed to initialize util task");
+  //      vTaskDelete(NULL);
+  //  }
   //}
   ESP_LOGI(TAG, "SETUP DONE");
   //  
