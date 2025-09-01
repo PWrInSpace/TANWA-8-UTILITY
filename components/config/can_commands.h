@@ -3,7 +3,7 @@
 
 /** PLACE YOUR CAN CALLBACKS AND CAN MESSAGES HERE IN FORMAT*/
 typedef enum {
-    CAN_SEND_STATUS = 0x3EE0,
+    CAN_SEND_STATUS = 0x0EE0,
 
 } can_message_id_t;
 
