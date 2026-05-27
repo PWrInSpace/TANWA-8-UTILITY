@@ -16,7 +16,7 @@
 #define PWM_FREQ_HZ 5000 // 5 kHz PWM frequency
 #define PWM_CHANNEL LEDC_CHANNEL_0
 #define PWM_RESOLUTION LEDC_TIMER_12_BIT // 10-bit resolution (0-1023)
-#define GPIO_BUZZER GPIO_NUM_19 // GPIO for buzzer
+#define GPIO_BUZZER GPIO_NUM_10 // GPIO for buzzer
 #define GPIO_KONTRAKTON GPIO_NUM_21 // GPIO for kontrakton
 #define ADC_CHANNEL ADC_CHANNEL_5 // GPIO 5 on ESP32-S3
 #define ADC_ATTEN ADC_ATTEN_DB_12 // 0-3.3V range

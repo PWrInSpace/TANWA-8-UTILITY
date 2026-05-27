@@ -40,19 +40,9 @@ void util_task(void *arg) {
         // Scale to 0-150 duty: (voltage_reversed * MAX_DUTY) / (3050 - 2300)
         uint32_t duty = (voltage_reversed * MAX_DUTY) / (MAX_VOLTAGE_POT - MIN_VOLTAGE_POT);
         duty = MAX_DUTY-duty;
-        if (kontrakton_state) {
-            if(duty<=2)
-            {
-                set_led_strip_brightness(0);
-            }
-            else{
-            set_led_strip_brightness(duty);
-            }
-        } else {
-            set_led_strip_brightness(0);
-        }
-        ESP_LOGI(TAGS, "ADC Voltage: %d mV, PWM Duty: %d", voltage, duty);
-        vTaskDelay(5 / portTICK_PERIOD_MS);
+        set_led_strip_brightness(256);
+        //ESP_LOGI(TAGS, "ADC Voltage: %d mV, PWM Duty: %d", voltage, duty);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }
 

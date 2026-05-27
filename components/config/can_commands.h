@@ -4,6 +4,9 @@
 /** PLACE YOUR CAN CALLBACKS AND CAN MESSAGES HERE IN FORMAT*/
 typedef enum {
     CAN_SEND_STATUS = 0x0EE0,
+    CAN_BUZZER_TOGGLE = 0x0EEE,
+     // Add more command IDs as needed
+     // CAN_COMMAND_ID = 0xXXXX,
 
 } can_message_id_t;
 

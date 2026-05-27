@@ -6,6 +6,7 @@
 #include "esp_err.h"
 
 #include "driver/twai.h"
+#include "internal_util_config.h"
 
 #define TAG "CAN_CONFIG"
 
@@ -20,10 +21,37 @@ esp_err_t new_command_handler(uint8_t *data, uint8_t length) {
     // Return success
     return ESP_OK;
 }
+esp_err_t buzzer_handler(uint8_t *data, uint8_t length) {
+    if (length < 1) {
+        ESP_LOGE(TAG, "Buzzer command received with insufficient data");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    // 1. Buzzer działa tradycyjnie na podstawie przesłanych danych (sztywny stan)
+    bool toggle = data[0];
+    uint8_t freq_s = (length > 1) ? data[1] : 0; // zabezpieczenie przed brakiem drugiego bajtu
+    
+    set_buzzer_state(toggle);
+    gpio_set_level(GPIO_BUZZER, toggle ? 1 : 0);
+    ESP_LOGI(TAG, "Buzzer state set to %s", toggle ? "ON" : "OFF");
+
+    // 2. Dioda LED na GPIO 46 zmienia stan na przeciwny (Toggle)
+    // Odczytujemy aktualny stan pinu 46, negujemy go i zapisujemy z powrotem
+    int current_led_state = gpio_get_level(46);
+    int new_led_state = !current_led_state;
+    gpio_set_level(46, new_led_state);
+    
+    ESP_LOGI(TAG, "LED (GPIO 46) toggled from %d to %d", current_led_state, new_led_state);
+
+    return ESP_OK;
+}
 
 can_command_t can_commands[] = {
     // Example command registration
     {CAN_SEND_STATUS, new_command_handler},
+    {CAN_BUZZER_TOGGLE, buzzer_handler},
+     // Add more commands as needed
+     // {CAN_COMMAND_ID, command_handler_function},
     // Add your CAN commands here
 };
 

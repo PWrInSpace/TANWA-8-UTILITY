@@ -55,7 +55,7 @@ esp_err_t set_led_strip_brightness(uint32_t duty) {
         ESP_LOGE(TAG, "LEDC update duty failed: %s", esp_err_to_name(ret));
         return ret;
     }
-    ESP_LOGI(TAG, "LED brightness set to %u", duty);
+   // ESP_LOGI(TAG, "LED brightness set to %u", duty);
     return ESP_OK;
 }
 
@@ -72,7 +72,7 @@ void configure_buzzer(void) {
         ESP_LOGE(TAG, "Buzzer GPIO config failed on GPIO %d: %s", GPIO_BUZZER, esp_err_to_name(ret));
     }
     ESP_ERROR_CHECK(ret);
-    ret = gpio_set_level(GPIO_BUZZER, 1); // Initial state ON per original code
+    ret = gpio_set_level(GPIO_BUZZER, 0); // Initial state ON per original code
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Buzzer set level failed: %s", esp_err_to_name(ret));
     }
@@ -82,7 +82,7 @@ void configure_buzzer(void) {
 
 void set_buzzer_state(bool state) {
     esp_err_t ret = gpio_set_level(GPIO_BUZZER, state ? 1 : 0);
-    if (ret != ESP_OK) {
+        if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Buzzer set state failed: %s", esp_err_to_name(ret));
     }
     ESP_ERROR_CHECK(ret);
@@ -165,7 +165,7 @@ int read_led_intensity(void) {
         int voltage_mv = 0;
         esp_err_t ret = adc_cali_raw_to_voltage(adc_cali_handle, adc_raw, &voltage_mv);
         if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "LED intensity: %d mV", voltage_mv);
+            //ESP_LOGI(TAG, "LED intensity: %d mV", voltage_mv);
             return voltage_mv;
         } else {
             ESP_LOGE(TAG, "ADC voltage conversion failed: %s", esp_err_to_name(ret));
@@ -223,7 +223,7 @@ esp_err_t init_internal_util(void) {
         return ret;
     }
     configure_kontrakton_input();
-    set_buzzer_state(true);
+    set_buzzer_state(false);
     vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms delay for hardware stabilization
     ESP_LOGI(TAG, "Internal utility initialization completed");
     return ESP_OK;

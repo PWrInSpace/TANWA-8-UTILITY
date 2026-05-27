@@ -15,6 +15,7 @@
 
 #include "console.h"
 #include "console_config.h"
+#include "internal_util_config.h"
 
 #define TAG "CONSOLE_CONFIG"
 
@@ -69,6 +70,14 @@ static int read_pwr_data(int argc, char **arg)
     return 0;
 }
 
+static int toggle_buzzer(int argc, char **argv) {
+    // This is a placeholder function. You would need to implement the actual logic to toggle the buzzer state.
+    CONSOLE_WRITE("Toggling buzzer state...");
+   bool state = false; // This should be the actual state of the buzzer
+   state = argv[1] ? atoi(argv[1]) : !state; // Toggle state if no argument, otherwise set to provided value
+   set_buzzer_state(state);
+    return 0;
+}
  // Place for the console configuration
 
 static esp_console_cmd_t cmd[] = {
@@ -76,6 +85,7 @@ static esp_console_cmd_t cmd[] = {
     {"reset-dev", "restart device", NULL, reset_device, NULL, NULL, NULL},
     {"temp-read", "read temperature", NULL, read_temperature, NULL, NULL, NULL},
     {"pwr-data", "read pwr data", NULL, read_pwr_data, NULL, NULL, NULL},
+    {"buzz-toggle", "toggle buzzer state", NULL, toggle_buzzer, NULL, NULL, NULL}, // Placeholder for buzzer toggle command
 };
 
 esp_err_t console_config_init() {

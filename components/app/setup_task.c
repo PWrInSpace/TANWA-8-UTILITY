@@ -40,11 +40,11 @@ void setup_task(void *arg) {
          vTaskDelete(NULL);
      }
 
-  //  if(util_task_init() != ESP_OK)
-  //  {
-  //      ESP_LOGE(TAG, "Failed to initialize util task");
-  //      vTaskDelete(NULL);
-  //  }
+   if(util_task_init() != ESP_OK)
+   {
+       ESP_LOGE(TAG, "Failed to initialize util task");
+       vTaskDelete(NULL);
+   }
   //}
   ESP_LOGI(TAG, "SETUP DONE");
   //  
