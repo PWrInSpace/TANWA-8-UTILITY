@@ -21,6 +21,8 @@ esp_err_t new_command_handler(uint8_t *data, uint8_t length) {
     // Return success
     return ESP_OK;
 }
+
+
 esp_err_t buzzer_handler(uint8_t *data, uint8_t length) {
     if (length < 1) {
         ESP_LOGE(TAG, "Buzzer command received with insufficient data");
@@ -46,12 +48,22 @@ esp_err_t buzzer_handler(uint8_t *data, uint8_t length) {
     return ESP_OK;
 }
 
+esp_err_t status_cmd_handler(uint8_t *data, uint8_t length) {
+
+    uint8_t data_send[3] = {0};
+    data_send[0] = 0;
+    data_send[1] = 0;
+    data_send[2] = 0;
+    
+    can_send_message(CAN_NEW_SEND_STATUS_ID, data_send, 8);
+    return ESP_OK;
+}
+
 can_command_t can_commands[] = {
     // Example command registration
     {CAN_SEND_STATUS, new_command_handler},
+    {CAN_UTIL_GET_STATUS_ID, status_cmd_handler},
     {CAN_BUZZER_TOGGLE, buzzer_handler},
-     // Add more commands as needed
-     // {CAN_COMMAND_ID, command_handler_function},
     // Add your CAN commands here
 };
 

@@ -4,10 +4,9 @@
 /** PLACE YOUR CAN CALLBACKS AND CAN MESSAGES HERE IN FORMAT*/
 typedef enum {
     CAN_SEND_STATUS = 0x0EE0,
+    CAN_UTIL_GET_STATUS_ID = 0x3EF0,
+    CAN_NEW_SEND_STATUS_ID = 0x3EF9,
     CAN_BUZZER_TOGGLE = 0x0EEE,
-     // Add more command IDs as needed
-     // CAN_COMMAND_ID = 0xXXXX,
-
 } can_message_id_t;
 
 /*PLACE YOUR FUNCTIONS ACCORDING TO THE TEMPLATE
@@ -19,4 +18,4 @@ typedef enum {
 
 
 
-#endif //PWRINSPACE_CAN_COMMANDS_H
+#endif //PW
